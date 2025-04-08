@@ -1,8 +1,8 @@
-## react的初始化过程
-### Concept scan
+# react的初始化过程
+## Concept scan
 _概念速览_
 
-#### **这是一个函数组件**
+### **例：这是一个函数组件**
 
 它只有三层结构： `div.container` → `div.header` → `button` 
 
@@ -23,7 +23,7 @@ function App() {
 }
 
 ```
-#### **第一步，经过babel 转译为如下代码结构：**
+### **第一步，经过babel 转译为如下代码结构：**
 
 jsx被转译成了`createElement` 函数，同样的三层结构，和jsx的三层结构一一对应。
 
@@ -55,7 +55,7 @@ function App() {
 }
 ```
 
-#### **第二步，生成react element树**
+### **第二步，生成react element树**
 
 `react element` 树，就是`createElement`执行之后，得到的实体对象，它是一个树状结构的`virtual dom`，依然是三层结构。
 
@@ -92,7 +92,7 @@ function App() {
 
 ```
 
-#### **第三步，在Reconciliation阶段构建fiber链表**
+### **第三步，在Reconciliation阶段构建fiber链表**
 
 只要有更新需求，react就会重构`fiber`链表，`diff`算法就发生在这一阶段。
 注意，`fiber`不再是树状结构，而是链表结构，这样的结构是为了提升效率和性能。
@@ -159,7 +159,7 @@ buttonFiber = {
 ```
 
 
-#### **第四步，commit阶段，渲染ui**
+### **第四步，commit阶段，渲染ui**
 
 当`fiber`链表全部遍历完成之后，才会进入这个阶段，本阶段完全为了渲染UI而服务。
 `useEffect`会在commit 阶段结束后执行。
@@ -190,11 +190,11 @@ function commitRoot(root) {
 
 ```
 
-### 更多细节解析
+## 更多细节解析
 将这一过程再向深展开，了解react是如何实现每个步骤的，有利于我们更好地理解react的工作原理，在写代码时，会更清晰地明白自己写的每一行业务代码在react内部有何影响。
 如此，才能下笔如有神，更加灵活地运用react。
 
-#### **第一步，jsx 转化 createElement**
+### **第一步，jsx 转化 createElement**
 jsx 是一种语法糖，它会被 babel 转译为 `createElement` 函数。
 babel的实现细节，在工程化的进阶分享中，会详细介绍，此处与react无关。
 createElement在转化时，对应不同的元素类型，会有不同的转化逻辑。
@@ -234,14 +234,15 @@ const element = React.createElement(MyComponent, null);
 
 ```
 
-注意1：组件节点，myComponent 是一个组件函数的引用，而不是组件函数的执行结果。
-注意2：要生成完整的 React 元素树，需要从最内层的， `React.reateElement` 调用开始依次向外执行。具体步骤如下：
+**注意1：组件节点，myComponent 是一个组件函数的引用，而不是组件函数的执行结果。**
+
+**注意2：要生成完整的 React 元素树，需要从最内层的， `React.reateElement` 调用开始依次向外执行。具体步骤如下：**
 
 - 最内层调用 ：先执行最内层的 React.createElement 调用，也就是创建 button 元素的调用。这个调用会返回一个表示 button 元素的 React 元素对象。
 - 外层调用 ：接着执行外层的 React.createElement 调用，也就是创建 div 元素的调用。它会使用之前创建的 button 元素的 React 元素对象作为其子元素。
 - 最终结果 ：当所有的 React.createElement 调用都执行完毕后，就会得到一个完整的 React 元素树，它是一个嵌套的 JavaScript 对象结构，代表了整个组件的虚拟 DOM。
 
-#### **第二步，react element树**
+### **第二步，react element树**
 react element 树，就是 `createElement` 执行之后，得到的实体对象，它是一个树状结构的虚拟 DOM。
 react element 树，是react内部需要的数据，`fiber`就是在它的基础上构建的。
 react element 树，是一个纯数据结构，它不包含任何与 DOM 相关的信息。
@@ -256,6 +257,7 @@ react element 树，是一个纯数据结构，它不包含任何与 DOM 相关�
 所有正常的，参与UI渲染的元素，我们不必多说。
 
 **特殊的element**
+
 除了需要渲染的元素，react还会生成一些特殊的element，用于标识一些特殊的操作。
 - `React.Fragment` ：用于包裹一组子元素，不生成对应的 DOM 节点。这是大家使用最多的特殊元素，根本原因是因为react不允许没有父元素的子元素。所有元素必须是树状结构，一个组件必须有且只有一个顶级元素，否则会报错。
 ```javascript
@@ -436,7 +438,7 @@ function App() {
 ```
 
 
-#### **第三步，fiber链表**
+### **第三步，fiber链表**
 fiber链表，是react内部构建的一个数据结构，用于描述组件的层级结构和更新过程。
 fiber链表，是一个链表结构，每个节点都有一个指向父节点、子节点和兄弟节点的指针。
 fiber链表，是一个纯数据结构，它不包含任何与DOM相关的信息。
@@ -472,7 +474,7 @@ const fiber = {
 
 ```
 每个属性都对渲染过程有一定的影响，下面我们来详细解释一下：
-- tag ：表示 Fiber 节点的类型，例如 FunctionComponent 、 HostComponent 、 HostRoot 等。不同的类型对应不同的组件类型或节点类型。
+- `tag` ：表示 Fiber 节点的类型，例如 FunctionComponent 、 HostComponent 、 HostRoot 等。不同的类型对应不同的组件类型或节点类型。
 - `type` ：对于 HostComponent 类型的 Fiber 节点， type 是 HTML 标签名（如 'div' 、 'span' ）；对于函数组件或类组件， type 是组件函数或类本身。 
 - `return` ：指向父 Fiber 节点。
 - `child` ：指向第一个子 Fiber 节点。
@@ -492,6 +494,8 @@ const fiber = {
 
 ##### 1. memoizedState
 `memoizedState` 存储的是上一次渲染时的状态信息，在函数组件里，它存储的是 Hooks。
+
+hooks链表结构如下：
 
 ```javascript
 Fiber节点
@@ -515,8 +519,9 @@ Fiber节点
 - useEffect 、 useLayoutEffect ： memoizedState 存储的是副作用函数及其依赖项数组。
 
 
-**自定义Hook**
-本质上，不是hook，对react来说，它只是一个函数，只是其内部有原生Hook，原生hook会被react平铺出来，和组件内部的原生hook平级，共同加入hooks链表。
+**一定要注意，自定义Hook，本质上，不是hook**
+
+对react来说，它只是一个函数，只是其内部有原生Hook，原生hook会被react平铺出来，和组件内部的原生hook平级，共同加入hooks链表。
 
 ##### 2. pendingState
 pendingState 存储的是新的状态信息，在函数组件里，当调用 setState 或者 dispatch 时，新的状态会先存储在 pendingState 中。在处理 Fiber 节点时， pendingState 会被应用到 memoizedState 上，从而更新组件的状态。
@@ -525,6 +530,7 @@ pendingState 存储的是新的状态信息，在函数组件里，当调用 set
 
 ### **第四步，commit 渲染UI**
 在fiber构建阶段，react会执行组件函数，生成dom，将dom暂存到fiber的stateNode属性中，且已经通过diff算法计算出组件是何类型：placement、update、deletion。
+
 在commit阶段，只要根据这三个属性，将dom渲染到页面上。
 ```javascript
 
@@ -552,6 +558,6 @@ pendingState 存储的是新的状态信息，在函数组件里，当调用 set
 - `Before mutation 阶段` ：在真实 DOM 更新之前执行，可用于读取 DOM 更新前的信息。
 - `Mutation 阶段` ：进行真实 DOM 的更新操作，像插入、更新、删除 DOM 节点。
 - `Layout 阶段` ：在真实 DOM 更新之后执行，可用于读取 DOM 更新后的信息并进行一些布局相关操作。
-  - useLayoutEffect 在 Layout 阶段同步执行，在 DOM 更新后但浏览器绘制前，会阻塞浏览器绘制。
-  - useEffect 在 Layout 阶段之后异步执行，在浏览器完成绘制之后，不会阻塞浏览器绘制。
+  - `useLayoutEffect` 在 Layout 阶段同步执行，在 DOM 更新后但浏览器绘制前，会阻塞浏览器绘制。
+  - `useEffect` 在 Layout 阶段之后异步执行，在浏览器完成绘制之后，不会阻塞浏览器绘制。
 通常建议优先使用 useEffect ，因为它不会阻塞浏览器绘制，能提升页面性能。只有在需要同步读取 DOM 布局信息时，才使用 useLayoutEffect 。
